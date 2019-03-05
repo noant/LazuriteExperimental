@@ -87,13 +87,13 @@ namespace LazuriteVoicePlugin
                 Recognizer.Start();
         }
 
-        private void Stop() => Recognizer.Stop();
+        private void Stop() => Recognizer?.Stop();
 
         public bool UserInitializeWith(ValueTypeBase valueType, bool inheritsSupportedValues)
         {
             var casts = _needCasts().Where(x => x.CanSet).ToArray();
-            var selected = casts.Where(x => VoicePluginData.Current.ActiveVoiceScenariosIds.Contains(x.ID)).ToArray();
-            var selectedWithoutActivation = casts.Where(x => VoicePluginData.Current.WithoutActivationVoiceScenariosIds.Contains(x.ID)).ToArray();
+            var selected = casts.Where(x => VoicePluginData.Current.ActiveVoiceScenariosIds?.Contains(x.ID) ?? false).ToArray();
+            var selectedWithoutActivation = casts.Where(x => VoicePluginData.Current.WithoutActivationVoiceScenariosIds?.Contains(x.ID) ?? false).ToArray();
             var volumeScen = casts.FirstOrDefault(x => x.ID == VoicePluginData.Current.VolumeLevelScenarioId);
             var infoScen = casts.FirstOrDefault(x => x.ID == VoicePluginData.Current.CommandsViewScenarioId);
             var soundNotifyScen = casts.FirstOrDefault(x => x.ID == VoicePluginData.Current.SoundNotifyViewScenarioId);
@@ -110,8 +110,8 @@ namespace LazuriteVoicePlugin
             if (ctrl.ShowDialog() ?? false)
             {
                 var info = ctrl.Info;
-                VoicePluginData.Current.ActiveVoiceScenariosIds = info.SelectedScenarios.Select(x => x.ID).ToArray();
-                VoicePluginData.Current.WithoutActivationVoiceScenariosIds = info.WithoutActivationScenarios.Select(x => x.ID).ToArray();
+                VoicePluginData.Current.ActiveVoiceScenariosIds = info.SelectedScenarios?.Select(x => x.ID).ToArray();
+                VoicePluginData.Current.WithoutActivationVoiceScenariosIds = info.WithoutActivationScenarios?.Select(x => x.ID).ToArray();
                 VoicePluginData.Current.CommandsViewScenarioId = info.InfoScenario?.ID;
                 VoicePluginData.Current.VolumeLevelScenarioId = info.VolumeScenario?.ID;
                 VoicePluginData.Current.SoundNotifyViewScenarioId = info.SoundNotifyScenario?.ID;
@@ -119,7 +119,7 @@ namespace LazuriteVoicePlugin
                 VoicePluginData.Current.ExecutionConfidence = info.ExecutionConfidence;
                 VoicePluginData.Current.Keywords = info.Keywords;
                 VoicePluginData.Current.Save();
-                if (!VoicePluginData.Current.ActiveVoiceScenariosIds.Any() || !VoicePluginData.Current.Keywords.Any())
+                if (!(VoicePluginData.Current.ActiveVoiceScenariosIds?.Any() ?? false) || !(VoicePluginData.Current.Keywords?.Any() ?? false))
                 {
                     Stop();
                     ValueChanged?.Invoke(this, ToggleValueType.ValueOFF);
